@@ -1,0 +1,22 @@
+{
+  "name": "action-build-get-engine-name",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luxtorpeda-dev/action-build-get-engine-name.git"
+  },
+  "author": "d10sfan",
+  "bugs": {
+    "url": "https://github.com/luxtorpeda-dev/action-build-get-engine-name/issues"
+  },
+  "homepage": "https://github.com/luxtorpeda-dev/action-build-get-engine-name#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/github": "^2.2.0"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.3"
+  }
+}
