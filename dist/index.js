@@ -510,9 +510,9 @@ console.log('Starting.');
 async function run() {
     try {
         const github = new GitHub(core.getInput('token'));
-        const isPullRequest = github.context.payload.pull_request;
+        const isPullRequest = context.payload.pull_request;
         if(isPullRequest) {
-            console.log(JSON.stringify(github.context.payload.pull_request));
+            console.log(JSON.stringify(context.payload.pull_request));
         }
         const commits = !isPullRequest ? context.payload.commits.filter(c => c.distinct) : context.payload.pull_request.commits.filter(c => c.distinct);
         const repository = context.payload.repository;
