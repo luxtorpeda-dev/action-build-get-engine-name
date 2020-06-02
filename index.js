@@ -7,10 +7,9 @@ async function run() {
     try {
         const github = new GitHub(core.getInput('token'));
         const isPullRequest = context.payload.pull_request;
-        if(isPullRequest) {
-            console.log(JSON.stringify(context.payload.pull_request));
-        }
-        const commits = !isPullRequest ? context.payload.commits.filter(c => c.distinct) : context.payload.pull_request.commits.filter(c => c.distinct);
+        const commits = !isPullRequest ? context.payload.commits.filter(c => c.distinct) : [{
+            id: context.payload.pull_request.head.sha
+        }];
         const repository = context.payload.repository;
         const organization = repository.organization;
         const owner = organization || repository.owner;
@@ -25,7 +24,6 @@ async function run() {
             };
             
             const ret = await github.repos.getCommit(args);
-            
 
             if(ret && ret.data && ret.data.files) {
                 for(let y = 0; y < ret.data.files.length; y++) {
