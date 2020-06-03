@@ -18,8 +18,8 @@ async function run() {
 
         for(let i = 0; i < commits.length; i++) {
             const args = {
-                owner: owner,
-                repo: repository.name,
+                owner: !isPullRequest ? owner: context.payload.pull_request.head.repo.owner.login,
+                repo: !isPullRequest ? repository.name : context.payload.pull_request.head.repo.name,
                 ref: commits[i].id
             };
             
