@@ -23,6 +23,8 @@ async function run() {
                 ref: commits[i].id
             };
             
+            console.log("ASDS", args);
+            
             const ret = await github.repos.getCommit(args);
 
             if(ret && ret.data && ret.data.files) {
