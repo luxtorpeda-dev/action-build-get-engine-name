@@ -556,15 +556,14 @@ async function run() {
             let container = 'steamruntime';
             
             const envFileStr = await fs.readFile(path.join('engines', engineName, 'env.sh'), 'utf-8');
-            console.log('envFileStr', envFileStr);
-            
             const envFileArr = envFileStr.split(/\r?\n/);
             for(let i = 0; i < envFileArr.length; i++) {
                 if(envFileArr[i].indexOf('CUSTOM_CONTAINER') !== -1) {
-                    container = envFileArr[i].split('CUSTOM_CONTAINER=')[1].trim();
+                    container = envFileArr[i].split('CUSTOM_CONTAINER=')[1].trim().replace(/['"]+/g, '');
                 }
             }
             
+            console.log(`Found container name: ${container}`);
             core.setOutput('container', container);
         } else {
             core.setFailed('Failed to find engine name');
