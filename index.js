@@ -49,7 +49,7 @@ async function run() {
             console.log(`Found Engine Name: ${engineName}`);
             core.setOutput('engine', engineName);
             
-            let container = 'steamruntime';
+            let container = 'luxtorpedadev/runtime:7';
             
             const envFileStr = await fs.readFile(path.join('engines', engineName, 'env.sh'), 'utf-8');
             const envFileArr = envFileStr.split(/\r?\n/);
