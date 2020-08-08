@@ -1,5 +1,7 @@
 const core = require('@actions/core');
 const { context, GitHub } = require('@actions/github');
+const fs = require('fs').promises;
+const path = require('path');
 
 console.log('Starting.');
 
@@ -46,6 +48,20 @@ async function run() {
         if(engineName) {
             console.log(`Found Engine Name: ${engineName}`);
             core.setOutput('engine', engineName);
+            
+            let container = 'steamruntime';
+            
+            const envFileStr = await fs.readFile(path.join('engines', engineName, 'env.sh'), 'utf-8');
+            console.log('envFileStr', envFileStr);
+            
+            const envFileArr = envFileStr.split(/\r?\n/);
+            for(let i = 0; i < envFileArr.length; i++) {
+                if(envFileArr[i].indexOf('CUSTOM_CONTAINER') !== -1) {
+                    container = envFileArr[i].split('CUSTOM_CONTAINER=')[1].trim();
+                }
+            }
+            
+            core.setOutput('container', container);
         } else {
             core.setFailed('Failed to find engine name');
         }
