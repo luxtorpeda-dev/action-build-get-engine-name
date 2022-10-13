@@ -2,7 +2,7 @@ name: 'Get Engine Name'
 description: 'Gets engine name based on commits folder'
 author: 'd10sfan'
 runs:
-    using: 'node12'
+    using: 'node16'
     main: 'dist/index.js'
 inputs:
   token:
