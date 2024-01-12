@@ -49,7 +49,7 @@ async function run() {
             console.log(`Found Engine Name: ${engineName}`);
             core.setOutput('engine', engineName);
             
-            let container = 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:0.20231107.66301';
+            let container = 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:0.20231211.70175';
             
             const envFileStr = await fs.readFile(path.join('engines', engineName, 'env.sh'), 'utf-8');
             const envFileArr = envFileStr.split(/\r?\n/);
