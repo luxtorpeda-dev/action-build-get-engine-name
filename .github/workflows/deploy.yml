@@ -1,0 +1,29 @@
+name: Build Action
+on:
+    push:
+        branches: [master]
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                node-version: 20
+            - name: NPM Install
+              run: npm ci
+            - name: Build
+              run: node_modules/@vercel/ncc/dist/ncc/cli.js build index.js
+            - name: Commit package.json
+              run: |
+                git config --local user.email "action@github.com"
+                git config --local user.name "GitHub Action"
+                git add -A dist
+                git commit -m "Update dist"
+            - name: Push Changes
+              uses: ad-m/github-push-action@master
+              with:
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                branch: master
