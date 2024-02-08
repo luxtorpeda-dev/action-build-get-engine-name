@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-const { context, GitHub } = require('@actions/github');
+const githubReq = require('@actions/github');
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -7,7 +7,8 @@ console.log('Starting.');
 
 async function run() {
     try {
-        const github = new GitHub(core.getInput('token'));
+        const context = githubReq.context;
+        const github = github.getOctokit(core.getInput('token'));
         const isPullRequest = context.payload.pull_request;
         const commits = !isPullRequest ? context.payload.commits.filter(c => c.distinct) : [{
             id: context.payload.pull_request.head.sha
@@ -25,7 +26,7 @@ async function run() {
                 ref: commits[i].id
             };
             
-            const ret = await github.repos.getCommit(args);
+            const ret = await github.rest.repos.getCommit(args);
 
             if(ret && ret.data && ret.data.files) {
                 for(let y = 0; y < ret.data.files.length; y++) {
