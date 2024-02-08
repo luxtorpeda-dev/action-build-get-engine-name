@@ -30794,7 +30794,7 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 const core = __nccwpck_require__(2186);
-const { context, GitHub } = __nccwpck_require__(5438);
+const githubReq = __nccwpck_require__(5438);
 const fs = (__nccwpck_require__(7147).promises);
 const path = __nccwpck_require__(1017);
 
@@ -30802,7 +30802,8 @@ console.log('Starting.');
 
 async function run() {
     try {
-        const github = new GitHub(core.getInput('token'));
+        const context = githubReq.context;
+        const github = github.getOctokit(core.getInput('token'));
         const isPullRequest = context.payload.pull_request;
         const commits = !isPullRequest ? context.payload.commits.filter(c => c.distinct) : [{
             id: context.payload.pull_request.head.sha
@@ -30820,7 +30821,7 @@ async function run() {
                 ref: commits[i].id
             };
             
-            const ret = await github.repos.getCommit(args);
+            const ret = await github.rest.repos.getCommit(args);
 
             if(ret && ret.data && ret.data.files) {
                 for(let y = 0; y < ret.data.files.length; y++) {
