@@ -30803,7 +30803,7 @@ console.log('Starting.');
 async function run() {
     try {
         const context = githubReq.context;
-        const github = github.getOctokit(core.getInput('token'));
+        const github = githubReq.getOctokit(core.getInput('token'));
         const isPullRequest = context.payload.pull_request;
         const commits = !isPullRequest ? context.payload.commits.filter(c => c.distinct) : [{
             id: context.payload.pull_request.head.sha
