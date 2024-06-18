@@ -31060,7 +31060,7 @@ async function run() {
             console.log(`Found Engine Name: ${engineName}`);
             core.setOutput('engine', engineName);
             
-            let container = 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:0.20240415.84603';
+            let container = 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:0.20240618.92328';
             
             console.log(`Found container name: ${container}`);
             core.setOutput('container', container);
