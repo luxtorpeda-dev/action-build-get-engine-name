@@ -9,7 +9,7 @@ inputs:
     description: GitHub Personal Access Token
     required: true
 outputs:
-  engine:
-    description: Name of the engine found
+  engines:
+    description: Name of the engines found
   container:
     description: Name of the container that should be used
