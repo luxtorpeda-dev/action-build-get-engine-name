@@ -31755,65 +31755,55 @@ module.exports = parseParams
 var __webpack_exports__ = {};
 const core = __nccwpck_require__(7484);
 const githubReq = __nccwpck_require__(3228);
-const fs = (__nccwpck_require__(9896).promises);
-const path = __nccwpck_require__(6928);
-
-console.log('Starting.');
 
 async function run() {
     try {
         const context = githubReq.context;
         const github = githubReq.getOctokit(core.getInput('token'));
-        const isPullRequest = context.payload.pull_request;
-        const commits = !isPullRequest ? context.payload.commits.filter(c => c.distinct) : [{
-            id: context.payload.pull_request.head.sha
-        }];
-        const repository = context.payload.repository;
-        const organization = repository.organization;
-        const owner = organization || repository.owner;
-        
-        let engineName;
 
-        for(let i = 0; i < commits.length; i++) {
-            const args = {
-                owner: !isPullRequest ? owner: context.payload.pull_request.head.repo.owner.login,
-                repo: !isPullRequest ? repository.name : context.payload.pull_request.head.repo.name,
-                ref: commits[i].id
-            };
-            
-            const ret = await github.rest.repos.getCommit(args);
+        const isPullRequest = !!context.payload.pull_request;
 
-            if(ret && ret.data && ret.data.files) {
-                for(let y = 0; y < ret.data.files.length; y++) {
-                    const filename = ret.data.files[y].filename;
-                    
-                    const filePath = filename.split('/');
-                    if(filePath[0] === 'engines') {
-                       engineName = filePath[1];
-                    }
-                    
-                    break;
-                }
-            }
-            
-            if(engineName) {
-                break;
+        if (!isPullRequest) {
+            core.setFailed('This action only works on pull requests.');
+            return;
+        }
+
+        const base = 'master';
+        const head = context.payload.pull_request.head.sha;
+
+        const owner = context.payload.pull_request.head.repo.owner.login;
+        const repo = context.payload.pull_request.head.repo.name;
+
+        const compare = await github.rest.repos.compareCommits({
+            owner,
+            repo,
+            base,
+            head
+        });
+
+        const changedFiles = compare.data.files || [];
+        const engines = new Set();
+
+        for (const file of changedFiles) {
+            const parts = file.filename.split('/');
+            if (parts.length >= 2 && parts[0] === 'engines') {
+                engines.add(parts[1]);
             }
         }
-        
-        if(engineName) {
-            console.log(`Found Engine Name: ${engineName}`);
-            core.setOutput('engine', engineName);
-            
-            let container = 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20250210.116596';
-            
-            console.log(`Found container name: ${container}`);
+
+        if (engines.size > 0) {
+            const engineList = Array.from(engines);
+            console.log(`Detected engines: ${engineList.join(', ')}`);
+            core.setOutput('engines', JSON.stringify(engineList));
+
+            const container = 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20250210.116596';
+            console.log(`Using container: ${container}`);
             core.setOutput('container', container);
         } else {
-            core.setFailed('Failed to find engine name');
+            core.setFailed('No engine changes detected.');
         }
-    }
-    catch (error) {
+
+    } catch (error) {
         core.setFailed(error.message);
     }
 }
