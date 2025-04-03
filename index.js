@@ -7,32 +7,61 @@ async function run() {
         const github = githubReq.getOctokit(core.getInput('token'));
 
         const isPullRequest = !!context.payload.pull_request;
+        const repoInfo = isPullRequest
+        ? context.payload.pull_request.head.repo
+        : context.payload.repository;
 
-        if (!isPullRequest) {
-            core.setFailed('This action only works on pull requests.');
-            return;
-        }
-
-        const base = 'master';
-        const head = context.payload.pull_request.head.sha;
-
-        const owner = context.payload.pull_request.head.repo.owner.login;
-        const repo = context.payload.pull_request.head.repo.name;
-
-        const compare = await github.rest.repos.compareCommits({
-            owner,
-            repo,
-            base,
-            head
-        });
-
-        const changedFiles = compare.data.files || [];
+        const owner = repoInfo.owner.login || repoInfo.owner.name;
+        const repo = repoInfo.name;
         const engines = new Set();
 
-        for (const file of changedFiles) {
-            const parts = file.filename.split('/');
-            if (parts.length >= 2 && parts[0] === 'engines') {
-                engines.add(parts[1]);
+        if (isPullRequest) {
+            // compare base branch (usually master) with head commit of PR
+            const base = context.payload.pull_request.base.sha;
+            const head = context.payload.pull_request.head.sha;
+
+            const compare = await github.rest.repos.compareCommits({
+                owner,
+                repo,
+                base,
+                head
+            });
+
+            const changedFiles = compare.data.files || [];
+            for (const file of changedFiles) {
+                const parts = file.filename.split('/');
+                if (parts.length >= 2 && parts[0] === 'engines') {
+                    engines.add(parts[1]);
+                }
+            }
+        } else {
+            // Push event, use current SHA and get its parent commit
+            const commitSha = context.sha;
+            const commitData = await github.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: commitSha
+            });
+
+            const parentSha = commitData.data.parents?.[0]?.sha;
+            if (!parentSha) {
+                core.setFailed('No parent commit found for comparison.');
+                return;
+            }
+
+            const compare = await github.rest.repos.compareCommits({
+                owner,
+                repo,
+                base: parentSha,
+                head: commitSha
+            });
+
+            const changedFiles = compare.data.files || [];
+            for (const file of changedFiles) {
+                const parts = file.filename.split('/');
+                if (parts.length >= 2 && parts[0] === 'engines') {
+                    engines.add(parts[1]);
+                }
             }
         }
 
