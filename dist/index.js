@@ -31885,7 +31885,7 @@ async function run() {
             console.log(`Detected engines: ${engineList.join(', ')}`);
             core.setOutput('engines', JSON.stringify(engineList));
 
-            const container = 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20250826.159138';
+            const container = 'registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20250929.168600';
             console.log(`Using container: ${container}`);
             core.setOutput('container', container);
         } else {
